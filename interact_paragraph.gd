@@ -12,7 +12,7 @@ class ColorRange:
 	var end: int
 	var color: Color
 
-@export var TextFont: Font:
+@export var text_font: Font:
 	get:
 		return _font
 	set(value):
@@ -20,21 +20,21 @@ class ColorRange:
 		_font_id = _font.get_rids()[0]
 		_try_update_paragraph()
 
-@export var FontSize: int:
+@export var font_size: int:
 	get:
 		return _font_size
 	set(value):
 		_font_size = value
 		_try_update_paragraph()
 
-@export_multiline var Text: String:
+@export_multiline var text: String:
 	get:
 		return _text
 	set(value):
 		_text = value
 		_try_update_paragraph()
 
-@export var DefaultColor: Color:
+@export var default_color: Color:
 	get:
 		return _def_color
 	set(value):
@@ -43,32 +43,53 @@ class ColorRange:
 			_buffer_glyph_color[i] = _get_char_color(_buffer_glyph_start[i]).to_rgba32()
 		queue_redraw()
 
-@export_enum("Left", "Center", "Right", "Fill") var Alignment: int:
+@export_enum("Left", "Center", "Right", "Fill") var alignment: int:
 	get:
 		return _alignment
 	set(value):
 		_alignment = value
 		_try_update_paragraph()
 
-@export_enum("Top", "Middle", "Bottom") var VerticalAlignment: int:
+@export_enum("Top", "Middle", "Bottom") var vertical_alignment: int:
 	get:
 		return _ver_alignment
 	set(value):
 		_ver_alignment = value
 		_try_update_paragraph()
 
-@export var LineSpacing: float:
+@export var line_spacing: float:
 	get:
 		return _line_spacing
 	set(value):
 		_line_spacing = value
 		_try_update_paragraph()
 
-@export var PreviewWordsRect: bool:
+@export var preview_words_rect: bool:
 	get:
 		return _show_words_rect
 	set(value):
 		_show_words_rect = value
+		queue_redraw()
+
+@export var show_text_bg: bool:
+	get:
+		return _show_text_bg
+	set(value):
+		_show_text_bg = value
+		queue_redraw()
+
+@export var text_bg_color: Color:
+	get:
+		return _text_bg_color
+	set(value):
+		_text_bg_color = value
+		queue_redraw()
+
+@export var text_bg_margin: float:
+	get:
+		return _text_bg_margin
+	set(value):
+		_text_bg_margin = value
 		queue_redraw()
 
 var _color_ranges: Array[ColorRange]
@@ -81,11 +102,15 @@ var _alignment: int = 0
 var _ver_alignment: int = 0
 var _line_spacing: float = 0.0
 var _show_words_rect: bool
+var _show_text_bg: bool
+var _text_bg_color: Color = Color.TRANSPARENT
+var _text_bg_margin: float
 
 var _is_ready: bool
 var _ts : TextServer
 var _font_id : RID
 var _words_rects: Array[WordRectInfo] = []
+var text_rect: Rect2
 
 var _buffer_glyph_pos: PackedVector2Array
 var _buffer_glyph_idx: PackedInt32Array
@@ -192,13 +217,17 @@ func _update_paragraph()-> void:
 					var wordInfo := WordRectInfo.new()
 					wordInfo.text = _text.substr(curWordCharStart, curWordCharEnd - curWordCharStart)
 					if is_rtl:
-						wordInfo.rect = Rect2(glyphPos.x + endAdvance, linePos.y - ascent, curWordX - glyphPos.x - endAdvance, ascent + descent)
+						wordInfo.rect = Rect2(glyphPos.x + endAdvance, linePos.y - ascent, curWordX - glyphPos.x - endAdvance, ascent + descent).abs()
 					else:
-						wordInfo.rect = Rect2(curWordX, linePos.y - ascent, glyphPos.x - curWordX, ascent + descent)
+						wordInfo.rect = Rect2(curWordX, linePos.y - ascent, glyphPos.x - curWordX + endAdvance, ascent + descent)
 					wordInfo.start = curWordCharStart
 					wordInfo.end = curWordCharEnd
 					_words_rects.append(wordInfo)
 					curWordCharStart = -1
+					if _words_rects.size() == 1:
+						text_rect = wordInfo.rect
+					else:
+						text_rect = rect2_union(text_rect, wordInfo.rect)
 			glyphPos.x += advance
 			#If the word has no start, advance word start x
 			if curWordCharStart == -1:
@@ -206,7 +235,13 @@ func _update_paragraph()-> void:
 		linePos.y += descent + _line_spacing
 	queue_redraw()
 
+func rect2_union(r1: Rect2, r2: Rect2)-> Rect2:
+	return Rect2(minf(r1.position.x, r2.position.x), minf(r1.position.y, r2.position.y), maxf(r1.end.x, r2.end.x) - minf(r1.position.x, r2.position.x), maxf(r1.end.y, r2.end.y) - minf(r1.position.y, r2.position.y))
+
 func _draw()-> void:
+	if _show_text_bg:
+		var rect := text_rect.grow(_text_bg_margin)
+		draw_rect(rect, _text_bg_color, true)
 	#Draw the already buffered charachters
 	if _show_words_rect:
 		for wordRect in _words_rects:
