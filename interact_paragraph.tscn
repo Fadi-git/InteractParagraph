@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://bl5eibc8u60g7"]
+
+[ext_resource type="Script" path="res://interact_paragraph.gd" id="1_5mgyh"]
+
+[node name="InteractParagraph" type="Control"]
+layout_mode = 3
+anchor_right = 0.217014
+anchor_bottom = 0.154321
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_5mgyh")
+FontSize = 32
+metadata/_edit_use_anchors_ = true

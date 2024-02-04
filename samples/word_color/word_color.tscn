@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://comru6ff2wmp4"]
+
+[ext_resource type="Script" path="res://samples/word_color/word_color.gd" id="1_to3kl"]
+[ext_resource type="PackedScene" uid="uid://bl5eibc8u60g7" path="res://interact_paragraph.tscn" id="2_k1umm"]
+[ext_resource type="FontFile" uid="uid://b01pcfmkqnbar" path="res://fonts/Abd ElRady Pro.otf" id="3_phsqn"]
+
+[node name="WordColor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_to3kl")
+
+[node name="InteractParagraph" parent="." instance=ExtResource("2_k1umm")]
+layout_mode = 1
+anchor_left = 0.277778
+anchor_top = 0.345679
+anchor_right = 0.75
+anchor_bottom = 0.580247
+TextFont = ExtResource("3_phsqn")
+Text = "A control to displaying text, recognize words rectanlges and interact with individual words."
+DefaultColor = Color(1, 1, 1, 1)
+Alignment = 1
+VerticalAlignment = 1
+LineSpacing = 10.0
+PreviewWordsRect = true
