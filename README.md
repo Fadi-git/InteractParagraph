@@ -14,7 +14,7 @@ The source code and sample for GODOT UI control to display single-paragraph text
 ## Sample
 ### word_color scene
 ![alt text](images/InteractParagraphScreenCapture.jpg)
-Shows how to setup an InteractParagraph in the editor, and how to interact with individual words at run-time.
+##### Shows how to setup an InteractParagraph in the editor, and how to interact with individual words at run-time.
 
 ## Key methods Reference
 
